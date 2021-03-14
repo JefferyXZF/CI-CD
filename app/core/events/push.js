@@ -68,19 +68,20 @@ async function pushEvent(ctx, webhook, body) {
       dataType: 'json',
     });
 
-    // await ctx.curl(webhook, {
-    //   method: 'POST',
-    //   contentType: 'json',
-    //   data: {
-    //     msgtype: 'text',
-    //     text: {
-    //       content: '【push成功通知】',
-    //       mentioned_mobile_list: [ 'jeffery' ],
-    //     },
-    //   },
-    //   dataType: 'json',
-    // });
-
+    await ctx.curl(webhook, {
+      method: 'POST',
+      contentType: 'json',
+      data: {
+        msgtype: 'text',
+        text: {
+          content: '【push成功通知】',
+          mentioned_list: config.receivers.includes(username) ? config.receivers : config.receivers.concat(username),
+          mentioned_mobile_list: config.receivers.includes(username) ? config.receivers : config.receivers.concat(username),
+        },
+      },
+      dataType: 'json',
+    });
+    ctx.body = '消息推送成功！';
   } catch (error) {
     console.log(error);
     ctx.body = '请求参数不合法';
