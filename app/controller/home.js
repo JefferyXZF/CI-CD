@@ -193,6 +193,9 @@ class HomeController extends Controller {
   async test() {
     const { ctx } = this;
     const body = ctx.request.body;
+    ctx.logger.info('****** gitlab-start *******');
+    ctx.logger.info('gitlab信息：%j', ctx.request.body);
+    ctx.logger.info('****** gitlab-end *******');
     this.ctx.body = body;
   }
 }
