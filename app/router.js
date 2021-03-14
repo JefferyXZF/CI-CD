@@ -8,4 +8,6 @@ module.exports = app => {
   router.get('/', controller.home.index);
   router.get('/webhook', controller.home.webhook);
   router.post('/webhook', controller.home.webhook);
+  router.get('/test', controller.home.test);
+  router.post('/test', controller.home.test);
 };

@@ -11,9 +11,9 @@ class HomeController extends Controller {
   async webhook() {
     const { ctx, app } = this;
     const body = ctx.request.body;
-    ctx.logger.info('****** gitlab-start *******');
-    ctx.logger.info('gitlab信息：%j', ctx.request.body);
-    ctx.logger.info('****** gitlab-end *******');
+    // ctx.logger.info('****** gitlab-start *******');
+    // ctx.logger.info('gitlab信息：%j', ctx.request.body);
+    // ctx.logger.info('****** gitlab-end *******');
 
     const gitlabHookSend = await app.redis.get('gitlabHookSend');
     if (gitlabHookSend === 'close') {
@@ -189,6 +189,11 @@ class HomeController extends Controller {
       console.log(ex);
       this.ctx.body = '请求参数不合法';
     }
+  }
+  async test() {
+    const { ctx } = this;
+    const body = ctx.request.body;
+    this.ctx.body = body;
   }
 }
 
