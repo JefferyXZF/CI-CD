@@ -6,8 +6,7 @@
 module.exports = app => {
   const { router, controller } = app;
   router.get('/', controller.home.index);
-  router.get('/webhook', controller.home.webhook);
-  router.post('/webhook', controller.home.webhook);
-  router.get('/test', controller.home.test);
-  router.post('/test', controller.home.test);
+  router.post('/webhook/:key', controller.home.webhook);
+  router.get('/test/:key', controller.home.test);
+  router.post('/test/:key', controller.home.test);
 };
