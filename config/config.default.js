@@ -11,15 +11,20 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   const config = exports = {
-    security: {
-      csrf: {
-        enable: false,
-      },
-    },
+
   };
 
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1615700233819_6786';
+
+  config.redis = {
+    client: {
+      port: 6379, // Redis port
+      host: '127.0.0.1', // Redis host
+      password: '',
+      db: 0,
+    },
+  };
 
   // add your middleware config here
   config.middleware = [];
@@ -27,6 +32,16 @@ module.exports = appInfo => {
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+    cluster: {
+      listen: {
+        hostname: '0.0.0.0',
+      },
+    },
+    security: {
+      csrf: {
+        enable: false,
+      },
+    },
   };
 
   return {

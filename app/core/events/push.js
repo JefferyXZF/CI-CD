@@ -28,17 +28,17 @@ async function pushEvent(ctx, webhook, body) {
       }
     }
 
-    const username = commitPerson ? commitPerson : (findCommit.author && findCommit.author.name || '');
     const dateFormat = utils.getDateFormat(findCommit.timestamp);
     const projectName = project.name;
     const lastCommit = findCommit.message;
     const pushUrl = findCommit.url;
     let sourceBranch = '';
+    const username = commitPerson ? commitPerson : (findCommit.author && findCommit.author.name || '');
 
     const receivers = config.receivers;
     // 如果设置接收者，验证
     if (receivers && receivers.length) {
-      if (!(receivers.includes(username) || receivers.includes(commitPerson))) {
+      if (!(receivers.includes(username) || receivers.includes(findCommit.author))) {
         return;
       }
     }
@@ -63,24 +63,12 @@ async function pushEvent(ctx, webhook, body) {
         msgtype: 'markdown',
         markdown: {
           content: msg,
+          mentioned_mobile_list: [ commitPerson ],
         },
       },
       dataType: 'json',
     });
 
-    await ctx.curl(webhook, {
-      method: 'POST',
-      contentType: 'json',
-      data: {
-        msgtype: 'text',
-        text: {
-          content: '【push成功通知】',
-          mentioned_list: config.receivers.includes(username) ? config.receivers : config.receivers.concat(username),
-          mentioned_mobile_list: config.receivers.includes(username) ? config.receivers : config.receivers.concat(username),
-        },
-      },
-      dataType: 'json',
-    });
     ctx.body = '消息推送成功！';
   } catch (error) {
     console.log(error);

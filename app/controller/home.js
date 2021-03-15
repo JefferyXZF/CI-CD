@@ -11,8 +11,15 @@ class HomeController extends Controller {
   }
   // gitlab webhook && 企业微信机器人
   async webhook() {
-    const { ctx } = this;
+    const { ctx, app } = this;
     const body = ctx.request.body;
+    // redis 判断是否关闭
+    const gitlabHookSend = await app.redis.get('gitlabHookSend');
+    if (gitlabHookSend === 'close') {
+      ctx.body = '消息推送开关已关闭！';
+      return;
+    }
+
     const key = ctx.params.key;
     if (!key) return;
     // ctx.logger.info('****** gitlab-start *******');
