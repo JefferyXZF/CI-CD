@@ -6,43 +6,24 @@ const utils = require('../utils/index');
 async function pushEvent(ctx, webhook, body) {
   try {
     const { project, commits, ref } = body;
-    let commitPerson = null;
-    let findCommit = null;
-
     // 提交人
-    if (commits && commits.length) {
-      findCommit = commits.find(item => {
-        return item.message.indexOf('--user') > -1;
-      });
+    const commitPerson = config.commitPeople[body.user_username] || config.commitPeople[body.user_name];
+    const username = commitPerson && commitPerson.name || body.user_name;
 
-      if (findCommit) {
-        const lastCommitUserArr = findCommit.message.match(
-          /--user=[a-zA-Z\d\u4e00-\u9fa5]+\s{0,1}/g
-        );
-        commitPerson =
-          lastCommitUserArr && lastCommitUserArr[0]
-            ? lastCommitUserArr[0].replace(/--user=/g, '').replace(/\s+/g, '')
-            : null;
-      } else {
-        findCommit = commits[0];
-      }
-    }
-
-    const dateFormat = utils.getDateFormat(findCommit.timestamp);
+    // 提交记录
+    const commit = Array.isArray(commits) && commits[commits.length - 1];
+    const dateFormat = utils.getDateFormat(commit.timestamp);
+    const lastCommit = commit.message;
+    const pushUrl = commit.url;
     const projectName = project.name;
-    const lastCommit = findCommit.message;
-    const pushUrl = findCommit.url;
-    let sourceBranch = '';
-    const username = commitPerson ? commitPerson : (findCommit.author && findCommit.author.name || '');
 
     const receivers = config.receivers;
-    // 如果设置接收者，验证
-    if (receivers && receivers.length) {
-      if (!(receivers.includes(username) || receivers.includes(findCommit.author))) {
-        return;
-      }
+    // 验证接收者
+    if (!(commitPerson || receivers.includes(username))) {
+      return;
     }
 
+    let sourceBranch = '';
     if (ref) {
       const branch = ref.split('/');
       sourceBranch = branch[branch.length - 1];
@@ -53,7 +34,7 @@ async function pushEvent(ctx, webhook, body) {
       \>时间：<font color=\"info\">${dateFormat}</font>
       \>项目：<font color=\"info\">${projectName}</font>
       \>提交分支：<font color=\"info\">${sourceBranch || '未知'}</font>
-      \>最后提交信息：<font color=\"info\">${lastCommit}</font>
+      \>最后提交信息：<font color=\"info\"> ${lastCommit} </font>
       \>请求链接：[${pushUrl}](${pushUrl})`;
 
     await ctx.curl(webhook, {
@@ -63,7 +44,18 @@ async function pushEvent(ctx, webhook, body) {
         msgtype: 'markdown',
         markdown: {
           content: msg,
-          mentioned_mobile_list: [ commitPerson ],
+        },
+      },
+      dataType: 'json',
+    });
+
+    await ctx.curl(webhook, {
+      method: 'POST',
+      contentType: 'json',
+      data: {
+        msgtype: 'text',
+        text: {
+          content: `@${username}`,
         },
       },
       dataType: 'json',
