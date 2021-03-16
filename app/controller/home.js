@@ -14,11 +14,11 @@ class HomeController extends Controller {
     const { ctx, app } = this;
     const body = ctx.request.body;
     // redis 判断是否关闭
-    const gitlabHookSend = await app.redis.get('gitlabHookSend');
-    if (gitlabHookSend === 'close') {
-      ctx.body = '消息推送开关已关闭！';
-      return;
-    }
+    // const gitlabHookSend = await app.redis.get('gitlabHookSend');
+    // if (gitlabHookSend === 'close') {
+    //   ctx.body = '消息推送开关已关闭！';
+    //   return;
+    // }
 
     const key = ctx.params.key;
     if (!key) return;
